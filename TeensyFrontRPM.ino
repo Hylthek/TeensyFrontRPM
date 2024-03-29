@@ -8,8 +8,8 @@
 File deviceFiles[2]; //{LeftRPM_data,  RightRPM_data}
 std::string fileNames[2] = {"LeftRPM_data", "RightRPM_data"};
 std::string fileHeaders[2] = {
-  "Milliseconds,RPM\n" ,
-  "Milliseconds,RPM\n"
+  "Milliseconds,RPM,Timestamp\n" ,
+  "Milliseconds,RPM,Timestamp\n"
 };
 //consts-------------------------------------------------------------------------------------------------------
 const int pinLED = 13; //for debugging
@@ -95,6 +95,8 @@ void loop() { // put your main code here, to run repeatedly:
         deviceFiles[i].print(currMilliseconds);
         deviceFiles[i].print(",");
         deviceFiles[i].print(RPM);
+        deviceFiles[i].print(",");
+        deviceFiles[i].print(millisToTimestamp(currMilliseconds));
         deviceFiles[i].print("\n");
 
 
@@ -113,6 +115,8 @@ void loop() { // put your main code here, to run repeatedly:
         deviceFiles[i].print(currMilliseconds);
         deviceFiles[i].print(",");
         deviceFiles[i].print("0");
+        deviceFiles[i].print(",");
+        deviceFiles[i].print(millisToTimestamp(currMilliseconds));
         deviceFiles[i].print("\n");
       //update prevMilliseconds - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       prevMilliseconds[i] = millis();
@@ -120,4 +124,21 @@ void loop() { // put your main code here, to run repeatedly:
     //save data--------------------------------------------------------------------------------------------------
     deviceFiles[i].flush();
   }
+}
+
+string millisToTimestamp(unsigned long millisParam) {
+  int millisecond = millisParam % 1000;
+  int second = (millisParam / 1000) % 60;
+  int minute = (second / 60) % 60;
+  int hour = minute / 60;
+  std::string output = "";
+  output += std::to_string(hour);
+  output += ":"
+  output += std::to_string(minute);
+  output += ":"
+  output += std::to_string(second);
+  output += "."
+  output += std::to_string(millisecond);
+
+  return output;
 }
