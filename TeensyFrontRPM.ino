@@ -19,6 +19,7 @@ const int stuffingCutoff = 1000;
 bool prevSensorState[2] = {0, 0}; //previous state of the rpm sensor
 unsigned long prevMilliseconds[2] = {0, 0}; //time since last sample (mSec)
 unsigned long prevMicroseconds[2] = {0, 0}; //time since last sample (uSec)
+unsigned long setupTimeOffset = 0; //offsets time so setup time is ignored in output file
 //SdExFat sd;       //IDK delete? (it works without it, so...)
 //SdVolume volume;  //IDK delete? (it works without it, so...)
 Sd2Card card;
@@ -76,6 +77,7 @@ void setup() { // put your setup code here, to run once:
     digitalWrite(pinLED, LOW);
     delay(50);
   }
+  setupTimeOffset = millis();
 }
 //loop function================================================================================================
 void loop() { // put your main code here, to run repeatedly:
@@ -92,11 +94,11 @@ void loop() { // put your main code here, to run repeatedly:
         unsigned long x = currMicroseconds - prevMicroseconds[i];
         unsigned long RPM = (60000000 / (x * 12)); // RpM = 60,000,000/x*12
         //log array to SD card- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        deviceFiles[i].print(currMilliseconds);
+        deviceFiles[i].print(currMilliseconds-setupTimeOffset);
         deviceFiles[i].print(",");
         deviceFiles[i].print(RPM);
         deviceFiles[i].print(",");
-        deviceFiles[i].print(millisToTimestamp(currMilliseconds));
+        deviceFiles[i].print(millisToTimestamp(currMilliseconds-setupTimeOffset));
         deviceFiles[i].print("\n");
 
 
@@ -112,11 +114,11 @@ void loop() { // put your main code here, to run repeatedly:
     //zero stuffing----------------------------------------------------------------------------------------------
     else if (currMilliseconds - prevMilliseconds[i] > stuffingCutoff) {
       //log array to SD card- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        deviceFiles[i].print(currMilliseconds);
+        deviceFiles[i].print(currMilliseconds-setupTimeOffset);
         deviceFiles[i].print(",");
         deviceFiles[i].print("0");
         deviceFiles[i].print(",");
-        deviceFiles[i].print(millisToTimestamp(currMilliseconds));
+        deviceFiles[i].print(millisToTimestamp(currMilliseconds-setupTimeOffset));
         deviceFiles[i].print("\n");
       //update prevMilliseconds - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       prevMilliseconds[i] = millis();
