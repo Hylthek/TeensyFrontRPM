@@ -7,6 +7,10 @@
 //changable const variables and objects------------------------------------------------------------------------
 File deviceFiles[2]; //{LeftRPM_data,  RightRPM_data}
 std::string fileNames[2] = {"LeftRPM_data", "RightRPM_data"};
+std::string fileHeaders[2] = {
+  "Milliseconds,RPM\n" ,
+  "Milliseconds,RPM\n"
+};
 //consts-------------------------------------------------------------------------------------------------------
 const int pinLED = 13; //for debugging
 const int pinRPM[2] = {0,1}; //hall-effect input
@@ -61,6 +65,10 @@ void setup() { // put your setup code here, to run once:
   //setup i/o pins and serial object---------------------------------------------------------------------------
   pinMode(pinRPM[0], INPUT_PULLUP);
   pinMode(pinRPM[1], INPUT_PULLUP);
+  //add data titles
+  for(int i = 0; i < 2; i++) {
+    deviceFiles[i].print(fileHeaders[i]);
+  }
   //post-setup-------------------------------------------------------------------------------------------------
   for (int i = 0; i < 30; i++) {
     digitalWrite(pinLED, HIGH);
