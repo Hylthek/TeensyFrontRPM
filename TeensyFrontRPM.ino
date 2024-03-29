@@ -68,7 +68,7 @@ void setup() { // put your setup code here, to run once:
   pinMode(pinRPM[1], INPUT_PULLUP);
   //add data titles
   for(int i = 0; i < 2; i++) {
-    deviceFiles[i].print(fileHeaders[i]);
+    deviceFiles[i].print(fileHeaders[i].data());
   }
   //post-setup-------------------------------------------------------------------------------------------------
   for (int i = 0; i < 30; i++) {
@@ -98,7 +98,7 @@ void loop() { // put your main code here, to run repeatedly:
         deviceFiles[i].print(",");
         deviceFiles[i].print(RPM);
         deviceFiles[i].print(",");
-        deviceFiles[i].print(millisToTimestamp(currMilliseconds-setupTimeOffset));
+        deviceFiles[i].print(millisToTimestamp(currMilliseconds-setupTimeOffset).data());
         deviceFiles[i].print("\n");
 
 
@@ -118,7 +118,7 @@ void loop() { // put your main code here, to run repeatedly:
         deviceFiles[i].print(",");
         deviceFiles[i].print("0");
         deviceFiles[i].print(",");
-        deviceFiles[i].print(millisToTimestamp(currMilliseconds-setupTimeOffset));
+        deviceFiles[i].print(millisToTimestamp(currMilliseconds-setupTimeOffset).data());
         deviceFiles[i].print("\n");
       //update prevMilliseconds - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       prevMilliseconds[i] = millis();
@@ -128,18 +128,18 @@ void loop() { // put your main code here, to run repeatedly:
   }
 }
 
-string millisToTimestamp(unsigned long millisParam) {
+std::string millisToTimestamp(unsigned long millisParam) {
   int millisecond = millisParam % 1000;
   int second = (millisParam / 1000) % 60;
   int minute = (second / 60) % 60;
   int hour = minute / 60;
   std::string output = "";
   output += std::to_string(hour);
-  output += ":"
+  output += ":";
   output += std::to_string(minute);
-  output += ":"
+  output += ":";
   output += std::to_string(second);
-  output += "."
+  output += ".";
   output += std::to_string(millisecond);
 
   return output;
