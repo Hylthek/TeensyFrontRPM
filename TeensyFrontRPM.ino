@@ -101,10 +101,12 @@ void loop() { // put your main code here, to run repeatedly:
         deviceFiles[i].print(millisToTimestamp(currMilliseconds-setupTimeOffset).data());
         deviceFiles[i].print("\n");
 
-
+        Serial.print(currMilliseconds-setupTimeOffset);
+        Serial.print(",");
         Serial.print(RPM);
+        Serial.print(",");
+        Serial.print(millisToTimestamp(currMilliseconds-setupTimeOffset).data());
         Serial.print("\n");
-
         
         //update "prev" variables - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         prevMilliseconds[i] = millis();
@@ -120,6 +122,14 @@ void loop() { // put your main code here, to run repeatedly:
         deviceFiles[i].print(",");
         deviceFiles[i].print(millisToTimestamp(currMilliseconds-setupTimeOffset).data());
         deviceFiles[i].print("\n");
+
+        Serial.print(currMilliseconds-setupTimeOffset);
+        Serial.print(",");
+        Serial.print("0");
+        Serial.print(",");
+        Serial.print(millisToTimestamp(currMilliseconds-setupTimeOffset).data());
+        Serial.print("\n");
+        
       //update prevMilliseconds - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       prevMilliseconds[i] = millis();
     }
