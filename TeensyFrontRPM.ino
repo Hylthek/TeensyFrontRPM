@@ -8,8 +8,8 @@
 File deviceFiles[2]; //{LeftRPM_data,  RightRPM_data}
 std::string fileNames[2] = {"LeftRPM_data", "RightRPM_data"};
 std::string fileHeaders[2] = {
-  "Timestamp,Milliseconds,RPM\n" ,
-  "Timestamp,Milliseconds,RPM\n"
+  "Timestamp,Milliseconds,LeftRPM\n" ,
+  "Timestamp,Milliseconds,RightRPM\n"
 };
 //consts-------------------------------------------------------------------------------------------------------
 const int pinLED = 13; //for debugging
