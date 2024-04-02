@@ -8,8 +8,8 @@
 File deviceFiles[2]; //{LeftRPM_data,  RightRPM_data}
 std::string fileNames[2] = {"LeftRPM_data", "RightRPM_data"};
 std::string fileHeaders[2] = {
-  "Milliseconds,RPM,Timestamp\n" ,
-  "Milliseconds,RPM,Timestamp\n"
+  "Timestamp,Milliseconds,RPM\n" ,
+  "Timestamp,Milliseconds,RPM\n"
 };
 //consts-------------------------------------------------------------------------------------------------------
 const int pinLED = 13; //for debugging
@@ -94,18 +94,18 @@ void loop() { // put your main code here, to run repeatedly:
         unsigned long x = currMicroseconds - prevMicroseconds[i];
         unsigned long RPM = (60000000 / (x * 12)); // RpM = 60,000,000/x*12
         //log array to SD card- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        deviceFiles[i].print(millisToTimestamp(currMilliseconds-setupTimeOffset).data());
+        deviceFiles[i].print(",");
         deviceFiles[i].print(currMilliseconds-setupTimeOffset);
         deviceFiles[i].print(",");
         deviceFiles[i].print(RPM);
-        deviceFiles[i].print(",");
-        deviceFiles[i].print(millisToTimestamp(currMilliseconds-setupTimeOffset).data());
         deviceFiles[i].print("\n");
 
+        Serial.print(millisToTimestamp(currMilliseconds-setupTimeOffset).data());
+        Serial.print(",");
         Serial.print(currMilliseconds-setupTimeOffset);
         Serial.print(",");
         Serial.print(RPM);
-        Serial.print(",");
-        Serial.print(millisToTimestamp(currMilliseconds-setupTimeOffset).data());
         Serial.print("\n");
         
         //update "prev" variables - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -116,18 +116,18 @@ void loop() { // put your main code here, to run repeatedly:
     //zero stuffing----------------------------------------------------------------------------------------------
     else if (currMilliseconds - prevMilliseconds[i] > stuffingCutoff) {
       //log array to SD card- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        deviceFiles[i].print(millisToTimestamp(currMilliseconds-setupTimeOffset).data());
+        deviceFiles[i].print(",");
         deviceFiles[i].print(currMilliseconds-setupTimeOffset);
         deviceFiles[i].print(",");
         deviceFiles[i].print("0");
-        deviceFiles[i].print(",");
-        deviceFiles[i].print(millisToTimestamp(currMilliseconds-setupTimeOffset).data());
         deviceFiles[i].print("\n");
 
+        Serial.print(millisToTimestamp(currMilliseconds-setupTimeOffset).data());
+        Serial.print(",");
         Serial.print(currMilliseconds-setupTimeOffset);
         Serial.print(",");
         Serial.print("0");
-        Serial.print(",");
-        Serial.print(millisToTimestamp(currMilliseconds-setupTimeOffset).data());
         Serial.print("\n");
         
       //update prevMilliseconds - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
