@@ -5,20 +5,22 @@
 #include <SD.h>
 #include <SPI.h>
 //changable const variables and objects------------------------------------------------------------------------
-File deviceFiles[2]; //{LeftRPM_data,  RightRPM_data}
-std::string fileNames[2] = {"LeftRPM_data", "RightRPM_data"};
-std::string fileHeaders[2] = {
-  "Timestamp,Milliseconds,LeftRPM\n" ,
-  "Timestamp,Milliseconds,RightRPM\n"
+const int numDevices = 3;
+File deviceFiles[numDevices]; //{LeftRPM_data,  RightRPM_data, rearRPM_data}
+std::string fileNames[numDevices] = {"frontLeftRPM_data", "frontRightRPM_data", "RearRPM_data"};
+std::string fileHeaders[numDevices] = {
+  "Timestamp,Milliseconds,frontLeftRPM\n" ,
+  "Timestamp,Milliseconds,frontRightRPM\n",
+  "Timestamp,Milliseconds,RearRPM\n"
 };
 //consts-------------------------------------------------------------------------------------------------------
 const int pinLED = 13; //for debugging
-const int pinRPM[2] = {0,1}; //hall-effect input
+const int pinRPM[numDevices] = {0,1,2}; //hall-effect input {0=left, 1=right, 2=rear}
 const int stuffingCutoff = 1000;
 //global variables---------------------------------------------------------------------------------------------
-bool prevSensorState[2] = {0, 0}; //previous state of the rpm sensor
-unsigned long prevMilliseconds[2] = {0, 0}; //time since last sample (mSec)
-unsigned long prevMicroseconds[2] = {0, 0}; //time since last sample (uSec)
+bool prevSensorState[numDevices] = {0, 0, 0}; //previous state of the rpm sensor
+unsigned long prevMilliseconds[numDevices] = {0, 0, 0}; //time since last sample (mSec)
+unsigned long prevMicroseconds[numDevices] = {0, 0, 0}; //time since last sample (uSec)
 unsigned long setupTimeOffset = 0; //offsets time so setup time is ignored in output file
 //SdExFat sd;       //IDK delete? (it works without it, so...)
 //SdVolume volume;  //IDK delete? (it works without it, so...)
@@ -45,7 +47,7 @@ void setup() { // put your setup code here, to run once:
     }
   }
   //file creation----------------------------------------------------------------------------------------------
-  for (int i = 0; i < 2; i++) {
+  for (int i = 0; i < numDevices; i++) {
     int currFileNum = 1;
     std::string currFileName = fileNames[i];
     while (true) {
@@ -64,10 +66,11 @@ void setup() { // put your setup code here, to run once:
     }
   }
   //setup i/o pins and serial object---------------------------------------------------------------------------
-  pinMode(pinRPM[0], INPUT_PULLUP);
-  pinMode(pinRPM[1], INPUT_PULLUP);
+  for(int i = 0; i < numDevices; i++) {
+    pinMode(pinRPM[i], INPUT_PULLUP);
+  }
   //add data titles
-  for(int i = 0; i < 2; i++) {
+  for(int i = 0; i < numDevices; i++) {
     deviceFiles[i].print(fileHeaders[i].data());
   }
   //post-setup-------------------------------------------------------------------------------------------------
@@ -81,7 +84,7 @@ void setup() { // put your setup code here, to run once:
 }
 //loop function================================================================================================
 void loop() { // put your main code here, to run repeatedly:
-  for(int i = 0; i < 2; i++) {
+  for(int i = 0; i < numDevices; i++) {
     //set "curr" variables---------------------------------------------------------------------------------------
     unsigned long currMilliseconds = millis();
     unsigned long currMicroseconds = micros();
