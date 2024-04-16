@@ -15,6 +15,10 @@ std::string fileHeaders[2] = {
 const int pinLED = 13; //for debugging
 const int pinRPM[2] = {0,1}; //hall-effect input
 const int stuffingCutoff = 1000;
+const int medianArraySize = 5;
+unsigned long medianArray[2][medianArraySize]; //A simple queue. Data points push into the array, zero stuffings fill the array.
+unsigned long medianArraySorted[2][medianArraySize]; //holds the sorted queue elements for median finding.
+int medianArrayCurrTop[2]; //marks the index of the oldest element in the array. (for the FIFO queue) (cycles through 0-medianArraySize)
 //global variables---------------------------------------------------------------------------------------------
 bool prevSensorState[2] = {0, 0}; //previous state of the rpm sensor
 unsigned long prevMilliseconds[2] = {0, 0}; //time since last sample (mSec)
@@ -70,6 +74,14 @@ void setup() { // put your setup code here, to run once:
   for(int i = 0; i < 2; i++) {
     deviceFiles[i].print(fileHeaders[i].data());
   }
+  //initialize median array------------------------------
+  for(int i = 0; i < 2; i++){
+    for(int j = 0; j < medianArraySize; j++){
+      medianArray[i][j] = 0;
+      medianArraySorted[i][j] = 0;
+    }
+    medianArrayCurrTop[i] = 0;
+  }
   //post-setup-------------------------------------------------------------------------------------------------
   for (int i = 0; i < 30; i++) {
     digitalWrite(pinLED, HIGH);
@@ -99,6 +111,8 @@ void loop() { // put your main code here, to run repeatedly:
         deviceFiles[i].print(currMilliseconds-setupTimeOffset);
         deviceFiles[i].print(",");
         deviceFiles[i].print(RPM);
+        deviceFiles[i].print(",");
+        deviceFiles[i].print(medianArrayPPC(i,RPM));
         deviceFiles[i].print("\n");
 
         Serial.print(millisToTimestamp(currMilliseconds-setupTimeOffset).data());
@@ -106,6 +120,8 @@ void loop() { // put your main code here, to run repeatedly:
         Serial.print(currMilliseconds-setupTimeOffset);
         Serial.print(",");
         Serial.print(RPM);
+        Serial.print(",");
+        Serial.print(medianArrayPPC(i,RPM));
         Serial.print("\n");
         
         //update "prev" variables - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -120,14 +136,14 @@ void loop() { // put your main code here, to run repeatedly:
         deviceFiles[i].print(",");
         deviceFiles[i].print(currMilliseconds-setupTimeOffset);
         deviceFiles[i].print(",");
-        deviceFiles[i].print("0");
+        deviceFiles[i].print(medianArrayFillZeroes(i));
         deviceFiles[i].print("\n");
 
         Serial.print(millisToTimestamp(currMilliseconds-setupTimeOffset).data());
         Serial.print(",");
         Serial.print(currMilliseconds-setupTimeOffset);
         Serial.print(",");
-        Serial.print("0");
+        Serial.print(medianArrayFillZeroes(i));
         Serial.print("\n");
         
       //update prevMilliseconds - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -162,4 +178,28 @@ std::string millisToTimestamp(unsigned long millisParam) {
     output += "0";
   output += std::to_string(millisecond);
   return output;
+}
+
+unsigned long medianArrayPPC (int i, unsigned long val) { //PPC stands for Push, Pop, Calculate median
+  //push and pop
+  medianArray[i][medianArrayCurrTop[i]] = val;
+  //calculate median;
+    //copy unsorted to sorted
+  for(int j = 0; j < medianArraySize; j++)
+    medianArraySorted[i][j] = medianArray[i][j];
+    //sort sorted array
+  std::sort(medianArraySorted,medianArraySorted + medianArraySize-1);
+    //return median;
+  return medianArraySorted[i][medianArraySize/2];
+  //increment cuurTop
+  medianArrayCurrTop[i]++;
+  if(medianArrayCurrTop[i] >= medianArraySize)
+    medianArrayCurrTop[i] = 0;
+}
+
+unsigned long medianArrayFillZeroes(int i) { //for zero stuffing
+  for(int j = 0; j < medianArraySize; j++)
+    medianArray[i][j] = 0;
+  medianArrayCurrTop[i] = 0;
+  return 0;
 }
